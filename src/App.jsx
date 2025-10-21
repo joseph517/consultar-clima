@@ -11,49 +11,7 @@ function App() {
   const suggestionsRef = useRef(null);
 
   // Obtener API key de OpenWeatherMap en https://openweathermap.org/api
-  const API_KEY = "TU_API_KEY_AQUI"; // Reemplazar con tu API key
-
-  // Cerrar sugerencias al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Obtener sugerencias de ciudades
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      const trimmedCity = city.trim();
-
-      if (trimmedCity.length >= 4) {
-        try {
-          const response = await fetch(
-            `https://api.openweathermap.org/geo/1.0/direct?q=${trimmedCity}&limit=5&appid=${API_KEY}`
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            setSuggestions(data);
-            setShowSuggestions(data.length > 0);
-          }
-        } catch (err) {
-          console.error("Error al obtener sugerencias:", err);
-        }
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    };
-
-    const timeoutId = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(timeoutId);
-  }, [city, API_KEY]);
-
+  const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const searchWeather = async (e) => {
     e.preventDefault();
     const trimmedCity = city.trim();
