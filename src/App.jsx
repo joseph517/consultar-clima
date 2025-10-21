@@ -8,8 +8,7 @@ function App() {
   const [error, setError] = useState("");
 
   // Obtener API key de OpenWeatherMap en https://openweathermap.org/api
-  const API_KEY = "TU_API_KEY_AQUI"; // Reemplazar con tu API key
-
+  const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const searchWeather = async (e) => {
     e.preventDefault();
     if (!city.trim()) {
