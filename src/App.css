@@ -8,12 +8,14 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .App {
   text-align: center;
   min-height: 100vh;
-  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
 }
 
 .App-header {
@@ -43,7 +45,11 @@ body {
 .main-content {
   max-width: 900px;
   margin: -30px auto 0;
-  padding: 0 20px;
+  padding: 0 20px 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .search-form {
@@ -54,6 +60,9 @@ body {
   padding: 10px;
   border-radius: 50px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 600px;
+  position: relative;
 }
 
 .search-input {
@@ -208,6 +217,45 @@ body {
   padding-top: 20px;
   border-top: 2px solid #ecf0f1;
   color: #95a5a6;
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 15px;
+  margin-top: 5px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+}
+
+.suggestion-item:active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.weather-container {
+  width: 100%;
 }
 
 @media (max-width: 768px) {

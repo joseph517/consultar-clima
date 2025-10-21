@@ -1,17 +1,22 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function App() {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef(null);
 
   // Obtener API key de OpenWeatherMap en https://openweathermap.org/api
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const searchWeather = async (e) => {
     e.preventDefault();
-    if (!city.trim()) {
+    const trimmedCity = city.trim();
+
+    if (!trimmedCity) {
       setError("Por favor ingresa una ciudad");
       return;
     }
@@ -19,10 +24,11 @@ function App() {
     setLoading(true);
     setError("");
     setWeatherData(null);
+    setShowSuggestions(false);
 
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=es`
+        `https://api.openweathermap.org/data/2.5/weather?q=${trimmedCity}&appid=${API_KEY}&units=metric&lang=es`
       );
 
       if (!response.ok) {
@@ -31,11 +37,30 @@ function App() {
 
       const data = await response.json();
       setWeatherData(data);
+      setCity(""); // Limpiar el input después de buscar
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    const cityName = suggestion.state
+      ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
+      : `${suggestion.name}, ${suggestion.country}`;
+    setCity(cityName);
+    setShowSuggestions(false);
+    // Buscar automáticamente al seleccionar una sugerencia
+    setTimeout(() => {
+      document.querySelector('.search-button')?.click();
+    }, 100);
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setCity(value);
+    setError(""); // Limpiar error al escribir
   };
 
   const formatTime = (timestamp) => {
@@ -53,18 +78,37 @@ function App() {
       </header>
 
       <main className="main-content">
-        <form onSubmit={searchWeather} className="search-form">
-          <input
-            type="text"
-            placeholder="Ingresa una ciudad..."
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="search-input"
-          />
-          <button type="submit" className="search-button" disabled={loading}>
-            {loading ? "Buscando..." : "Buscar"}
-          </button>
-        </form>
+        <div ref={suggestionsRef} style={{ width: '100%', maxWidth: '600px' }}>
+          <form onSubmit={searchWeather} className="search-form">
+            <input
+              type="text"
+              placeholder="Ingresa una ciudad..."
+              value={city}
+              onChange={handleInputChange}
+              className="search-input"
+              autoComplete="off"
+            />
+            <button type="submit" className="search-button" disabled={loading}>
+              {loading ? "Buscando..." : "Buscar"}
+            </button>
+          </form>
+
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="suggestions-dropdown">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={`${suggestion.lat}-${suggestion.lon}-${index}`}
+                  className="suggestion-item"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}
+                  {suggestion.state && `, ${suggestion.state}`}
+                  {`, ${suggestion.country}`}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {error && <div className="error-message">{error}</div>}
 
