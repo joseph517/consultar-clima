@@ -11,6 +11,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Prevenir scroll cuando no hay resultados */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
 .App {
   text-align: center;
   min-height: 100vh;
@@ -18,38 +24,44 @@ body {
   flex-direction: column;
 }
 
-.App-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Cuando no hay scroll, App debe ocupar exactamente 100vh */
+body.no-scroll .App {
+  height: 100vh;
+  overflow: hidden;
 }
 
-.App-header h1 {
+.title {
   font-size: 3rem;
   margin-bottom: 10px;
   font-weight: 700;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  color: white;
 }
 
 .subtitle {
   font-size: 1.2rem;
   opacity: 0.9;
   font-weight: 300;
+  color: white;
+  margin-bottom: 40px;
 }
 
 .main-content {
   max-width: 900px;
-  margin: -30px auto 0;
+  margin: 0 auto;
   padding: 0 20px 40px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Cuando hay resultados, alinear al inicio y aplicar margin negativo */
+.main-content.has-results {
+  justify-content: flex-start;
+  margin-top: -30px;
 }
 
 .search-form {
@@ -219,47 +231,12 @@ body {
   color: #95a5a6;
 }
 
-.suggestions-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border-radius: 15px;
-  margin-top: 5px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-
-.suggestion-item {
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: background 0.2s;
-  text-align: left;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
-.suggestion-item:hover {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-}
-
-.suggestion-item:active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
 .weather-container {
   width: 100%;
 }
 
 @media (max-width: 768px) {
-  .App-header h1 {
+  .title {
     font-size: 2rem;
   }
 

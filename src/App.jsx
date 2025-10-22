@@ -1,14 +1,11 @@
 import "./App.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef(null);
 
   // Obtener API key de OpenWeatherMap en https://openweathermap.org/api
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
@@ -24,7 +21,6 @@ function App() {
     setLoading(true);
     setError("");
     setWeatherData(null);
-    setShowSuggestions(false);
 
     try {
       const response = await fetch(
@@ -45,23 +41,36 @@ function App() {
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    const cityName = suggestion.state
-      ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
-      : `${suggestion.name}, ${suggestion.country}`;
-    setCity(cityName);
-    setShowSuggestions(false);
-    // Buscar automáticamente al seleccionar una sugerencia
-    setTimeout(() => {
-      document.querySelector('.search-button')?.click();
-    }, 100);
-  };
-
   const handleInputChange = (e) => {
     const value = e.target.value;
     setCity(value);
     setError(""); // Limpiar error al escribir
   };
+
+  // useEffect para controlar scroll en mobile según estado de búsqueda
+  useEffect(() => {
+    const updateScrollBehavior = () => {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+      if (isMobile && !weatherData) {
+        document.body.classList.add('no-scroll');
+      } else {
+        document.body.classList.remove('no-scroll');
+      }
+    };
+
+    // Ejecutar al montar y cuando cambie weatherData
+    updateScrollBehavior();
+
+    // Listener para cambios de tamaño de ventana
+    window.addEventListener('resize', updateScrollBehavior);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', updateScrollBehavior);
+      document.body.classList.remove('no-scroll');
+    };
+  }, [weatherData]);
 
   const formatTime = (timestamp) => {
     return new Date(timestamp * 1000).toLocaleTimeString("es-ES", {
@@ -72,43 +81,23 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Consultar Clima</h1>
+      <main className={`main-content ${weatherData ? 'has-results' : ''}`}>
+        <h1 className="title">Consultar Clima</h1>
         <p className="subtitle">Obtén información del clima en tiempo real</p>
-      </header>
 
-      <main className="main-content">
-        <div ref={suggestionsRef} style={{ width: '100%', maxWidth: '600px' }}>
-          <form onSubmit={searchWeather} className="search-form">
-            <input
-              type="text"
-              placeholder="Ingresa una ciudad..."
-              value={city}
-              onChange={handleInputChange}
-              className="search-input"
-              autoComplete="off"
-            />
-            <button type="submit" className="search-button" disabled={loading}>
-              {loading ? "Buscando..." : "Buscar"}
-            </button>
-          </form>
-
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="suggestions-dropdown">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={`${suggestion.lat}-${suggestion.lon}-${index}`}
-                  className="suggestion-item"
-                  onClick={() => handleSuggestionClick(suggestion)}
-                >
-                  {suggestion.name}
-                  {suggestion.state && `, ${suggestion.state}`}
-                  {`, ${suggestion.country}`}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <form onSubmit={searchWeather} className="search-form">
+          <input
+            type="text"
+            placeholder="Ingresa una ciudad..."
+            value={city}
+            onChange={handleInputChange}
+            className="search-input"
+            autoComplete="off"
+          />
+          <button type="submit" className="search-button" disabled={loading}>
+            {loading ? "Buscando..." : "Buscar"}
+          </button>
+        </form>
 
         {error && <div className="error-message">{error}</div>}
 
